@@ -5,17 +5,17 @@ import axios from 'axios';
 class Example extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {user: {}};
+        this.state = {stocks: []};
     }
 
     componentDidMount() {
         const token = $('meta[name=token]')[0].content;
 
-        axios.get('/api/user', {
+        axios.get('/api/stocks', {
             headers: {'Authorization': `Bearer ${token}`}
         }).then(response => {
-            const user = response.data;
-            this.setState({ user });
+            const stocks = response.data;
+            this.setState({ stocks });
         });
     }
 
@@ -27,7 +27,11 @@ class Example extends React.Component {
                         <div className="card">
                             <div className="card-header">Example Component</div>
 
-                            <div className="card-body">{ this.state.user.id } { this.state.user.name }</div>
+                            <div className="card-body">
+                                <ul>
+                                { this.state.stocks.map((item, index) => <li key={index}>{item.quantity}x {item.name}</li>) }
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
