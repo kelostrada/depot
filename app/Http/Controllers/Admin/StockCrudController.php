@@ -24,6 +24,24 @@ class StockCrudController extends CrudController
         $this->crud->setModel('App\Models\Stock');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/stock');
         $this->crud->setEntityNameStrings('stock', 'stocks');
+
+        $this->crud->addField([
+            'label' => "Product",
+            'type' => 'select',
+            'name' => 'product_id', // the db column for the foreign key
+            'entity' => 'product', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'model' => "App\Models\Product" // foreign key model
+        ]);
+
+        $this->crud->addField([
+            'label' => "Invoice",
+            'type' => 'select',
+            'name' => 'invoice_id', // the db column for the foreign key
+            'entity' => 'invoice', // the method that defines the relationship in your Model
+            'attribute' => 'name', // foreign key attribute that is shown to user
+            'model' => "App\Models\Invoice" // foreign key model
+        ]);
     }
 
     protected function setupListOperation()
