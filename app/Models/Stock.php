@@ -20,7 +20,7 @@ class Stock extends Model
     // public $timestamps = false;
     protected $guarded = ['id'];
     // protected $fillable = [];
-    // protected $hidden = [];
+    protected $hidden = ['created_at', 'updated_at'];
     // protected $dates = [];
 
     /*
@@ -28,6 +28,15 @@ class Stock extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function product()
+    {
+        return $this->belongsTo('App\Models\Product');
+    }
+
+    public function invoice()
+    {
+        return $this->belongsTo('App\Models\Invoice');
+    }
 
     /*
     |--------------------------------------------------------------------------

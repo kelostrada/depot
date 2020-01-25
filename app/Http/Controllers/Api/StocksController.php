@@ -15,6 +15,6 @@ class StocksController extends Controller
      */
     public function index()
     {
-        return Stock::all();
+        return Stock::with(['product', 'invoice'])->get();
     }
 }

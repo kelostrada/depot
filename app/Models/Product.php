@@ -20,7 +20,7 @@ class Product extends Model
     // public $timestamps = false;
     protected $guarded = ['id'];
     // protected $fillable = [];
-    // protected $hidden = [];
+    protected $hidden = ['created_at', 'updated_at'];
     // protected $dates = [];
 
     /*
