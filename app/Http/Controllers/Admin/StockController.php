@@ -14,6 +14,6 @@ class StockController extends Controller
 
     public function importStock(Request $request)
     {
-        return $request->input('test');
+        var_dump($request->file('test')->get());
     }
 }
