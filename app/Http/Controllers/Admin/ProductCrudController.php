@@ -46,6 +46,17 @@ class ProductCrudController extends CrudController
                     ->orderBy('stocked.stocked_quantity', $columnDirection)->select('products.*');
             }
         ]);
+
+        $this->crud->addColumn([
+            'name' => 'quantity',
+            'label' => 'Quantity',
+            'type' => 'closure',
+            'function' => function($entry) {
+                $button_sub = "<button class='btn btn-sm btn-outline-info quantity-sub' data-id='$entry->id'>-</button>";
+                $button_add = "<button class='btn btn-sm btn-outline-info quantity-add' data-id='$entry->id'>+</button>";
+                return $button_sub . " <span data-id='$entry->id' class='quantity'>" . $entry->quantity . "</span> " . $button_add;
+            }
+        ]);
     }
 
     protected function setupListOperation()

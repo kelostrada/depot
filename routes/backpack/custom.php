@@ -13,6 +13,7 @@ Route::group([
 ], function () { // custom admin routes
     Route::get('/import_stock', 'StockController@index');
     Route::post('/import_stock', 'StockController@importStock')->name('admin.import_stock');
+    Route::post('/product/{id}/quantity', 'ProductController@quantity');
 
     Route::crud('stock', 'StockCrudController');
     Route::crud('product', 'ProductCrudController');
