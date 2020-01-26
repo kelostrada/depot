@@ -26,7 +26,7 @@ class StockController extends Controller
            return explode(';', $line);
         }, $data);
 
-        $invoice = new Invoice();
+        $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
         $invoice->name = $invoice_name;
         $invoice->date = $invoice_date;
         $invoice->save();
@@ -48,18 +48,19 @@ class StockController extends Controller
                 $product->save();
             }
 
-            $stock = new Stock();
-            $stock->product_id = $product->id;
-            $stock->invoice_id = $invoice->id;
-            $stock->quantity = $quantity;
-            $stock->price = $price;
-            $stock->currency = $currency;
+            if($invoice->stocks()->where('product_id', '=', $product->id)->get()->isEmpty()) {
+                $stock = new Stock();
+                $stock->product_id = $product->id;
+                $stock->invoice_id = $invoice->id;
+                $stock->quantity = $quantity;
+                $stock->price = $price;
+                $stock->currency = $currency;
 
-            $stock->save();
+                $stock->save();
+            }
 
             return $product;
         }, $data);
-
 
 
 

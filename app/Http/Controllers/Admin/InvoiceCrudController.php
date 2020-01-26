@@ -24,6 +24,20 @@ class InvoiceCrudController extends CrudController
         $this->crud->setModel('App\Models\Invoice');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/invoice');
         $this->crud->setEntityNameStrings('invoice', 'invoices');
+
+        $this->crud->addColumn([
+            // n-n relationship (with pivot table)
+            'label' => "Stocks", // Table column heading
+            'type' => "select_multiple",
+            'name' => 'stocks', // the method that defines the relationship in your Model
+            'entity' => 'stocks', // the method that defines the relationship in your Model
+            'attribute' => "product.ref", // foreign key attribute that is shown to user
+            'model' => "App\Models\Stock", // foreign key model
+            'visibleInTable' => false, // no point, since it's a large text
+            'visibleInModal' => true, // would make the modal too big
+            'visibleInExport' => false, // not important enough
+            'visibleInShow' => true, // sure, why not
+        ]);
     }
 
     protected function setupListOperation()

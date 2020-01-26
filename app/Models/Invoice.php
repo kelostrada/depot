@@ -28,6 +28,10 @@ class Invoice extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function stocks()
+    {
+        return $this->hasMany('App\Models\Stock');
+    }
 
     /*
     |--------------------------------------------------------------------------
