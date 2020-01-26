@@ -30,7 +30,7 @@ class StockCrudController extends CrudController
             'type' => 'select',
             'name' => 'product_id', // the db column for the foreign key
             'entity' => 'product', // the method that defines the relationship in your Model
-            'attribute' => 'name', // foreign key attribute that is shown to user
+            'attribute' => 'ref', // foreign key attribute that is shown to user
             'model' => "App\Models\Product" // foreign key model
         ]);
 
@@ -41,6 +41,22 @@ class StockCrudController extends CrudController
             'entity' => 'invoice', // the method that defines the relationship in your Model
             'attribute' => 'name', // foreign key attribute that is shown to user
             'model' => "App\Models\Invoice" // foreign key model
+        ]);
+
+        $this->crud->addColumn([
+            'type' => 'select',
+            'name' => 'product_id',
+            'entity' => 'product',
+            'attribute' => 'ref',
+            'model' => 'App\Models\Product'
+        ]);
+
+        $this->crud->addColumn([
+            'type' => 'select',
+            'name' => 'invoice_id',
+            'entity' => 'invoice',
+            'attribute' => 'name',
+            'model' => 'App\Models\Invoice'
         ]);
     }
 

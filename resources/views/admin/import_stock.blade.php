@@ -19,7 +19,7 @@
                             <div class="form-group row">
                                 <label for="title" class="col-sm-4 col-form-label text-md-right">{{ __('Date') }}</label>
                                 <div class="col-md-6">
-                                    <input type="month" class="form-control" name="date" required autofocus />
+                                    <input type="date" class="form-control" name="date" required autofocus />
                                 </div>
                             </div>
 

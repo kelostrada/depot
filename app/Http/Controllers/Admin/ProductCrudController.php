@@ -24,6 +24,14 @@ class ProductCrudController extends CrudController
         $this->crud->setModel('App\Models\Product');
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/product');
         $this->crud->setEntityNameStrings('product', 'products');
+
+        $this->crud->addColumn([
+            // run a function on the CRUD model and show its return value
+            'name' => "stock",
+            'label' => "Stocked", // Table column heading
+            'type' => "model_function",
+            'function_name' => 'stockQuantity' // the method in your Model
+        ]);
     }
 
     protected function setupListOperation()

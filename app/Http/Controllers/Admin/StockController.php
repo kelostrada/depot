@@ -33,16 +33,19 @@ class StockController extends Controller
         $invoice->save();
 
         $data = array_map(function ($stock) use ($invoice) {
-            $product_name = $stock[0];
-            $quantity = $stock[1];
-            $price = $stock[2];
-//            $currency = $stock[3];
+            $product_ref = $stock[0];
+            $product_name = $stock[1];
+            $quantity = $stock[2];
+            $price = $stock[3];
+            $currency = $stock[4];
 
-            $product = Product::firstOrNew(['name' => $product_name]);
+            $product = Product::firstOrNew(['ref' => $product_ref]);
 
             if (!$product->id) {
                 $product->quantity = 0;
                 $product->price = 0;
+                $product->name = $product_name;
+                $product->ref = $product_ref;
                 $product->save();
             }
 
@@ -51,7 +54,7 @@ class StockController extends Controller
             $stock->invoice_id = $invoice->id;
             $stock->quantity = $quantity;
             $stock->price = $price;
-//            $stock->currency = $currency;
+            $stock->currency = $currency;
 
             $stock->save();
 

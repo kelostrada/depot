@@ -28,6 +28,13 @@ class Product extends Model
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+    public function stocks() {
+        return $this->hasMany('App\Models\Stock');
+    }
+
+    public function stockQuantity() {
+        return $this->stocks()->sum('quantity');
+    }
 
     /*
     |--------------------------------------------------------------------------
