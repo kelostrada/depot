@@ -12,9 +12,23 @@
                             <div class="form-group row">
                                 <label for="title" class="col-sm-4 col-form-label text-md-right">{{ __('Invoice') }}</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="custom-file-input" id="inputGroupFile01"
-                                           aria-describedby="inputGroupFileAddon01" name="test">
-                                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                    <input type="text" class="form-control" name="invoice" required autofocus />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="title" class="col-sm-4 col-form-label text-md-right">{{ __('Date') }}</label>
+                                <div class="col-md-6">
+                                    <input type="month" class="form-control" name="date" required autofocus />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="title" class="col-sm-4 col-form-label text-md-right">{{ __('Invoice File') }}</label>
+                                <div class="col-md-6">
+                                    <input type="file" class="custom-file-input" id="invoice_file"
+                                           aria-describedby="invoice_file" name="invoice_file">
+                                    <label class="custom-file-label" for="invoice_file">Choose file</label>
                                 </div>
                             </div>
 

@@ -19,7 +19,7 @@ class Invoice extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
-    // protected $fillable = [];
+    protected $fillable = ['name', 'date'];
     protected $hidden = ['created_at', 'updated_at'];
     // protected $dates = [];
 
