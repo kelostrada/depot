@@ -25,7 +25,6 @@ class StockController extends Controller
         $data = array_map(function ($line) {
            return explode(';', $line);
         }, $data);
-        $data = array_slice($data, 1, sizeof($data));
 
         $invoice = new Invoice();
         $invoice->name = $invoice_name;
@@ -65,6 +64,6 @@ class StockController extends Controller
 
 
 
-        return $data;
+        return redirect('admin/stock');
     }
 }

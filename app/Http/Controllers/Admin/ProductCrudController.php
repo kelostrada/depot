@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\ProductRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class ProductCrudController
@@ -30,7 +31,20 @@ class ProductCrudController extends CrudController
             'name' => "stock",
             'label' => "Stocked", // Table column heading
             'type' => "model_function",
-            'function_name' => 'stockQuantity' // the method in your Model
+            'function_name' => 'stockQuantity', // the method in your Model
+            'orderable' => true,
+            'orderLogic' => function ($query, $column, $columnDirection) {
+                $stocked = DB::table('products')
+                    ->join('stocks', 'products.id', '=', 'stocks.product_id')
+                    ->select('products.id', DB::raw('SUM(stocks.quantity) as stocked_quantity'))
+                    ->groupBy('products.id');
+
+                return $query
+                    ->joinSub($stocked, 'stocked', function ($join) {
+                        $join->on('products.id', '=', 'stocked.id');
+                    })
+                    ->orderBy('stocked.stocked_quantity', $columnDirection)->select('products.*');
+            }
         ]);
     }
 
