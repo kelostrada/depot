@@ -27,7 +27,7 @@ class StockCrudController extends CrudController
 
         $this->crud->addField([
             'label' => "Product",
-            'type' => 'select',
+            'type' => 'select2',
             'name' => 'product_id', // the db column for the foreign key
             'entity' => 'product', // the method that defines the relationship in your Model
             'attribute' => 'ref', // foreign key attribute that is shown to user

@@ -57,6 +57,11 @@ class ProductCrudController extends CrudController
                 return $button_sub . " <span data-id='$entry->id' class='quantity'>" . $entry->quantity . "</span> " . $button_add;
             }
         ]);
+
+        $this->crud->addColumn([
+            'name' => 'name',
+            'limit' => 150
+        ]);
     }
 
     protected function setupListOperation()

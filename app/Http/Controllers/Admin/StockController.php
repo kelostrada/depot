@@ -32,11 +32,11 @@ class StockController extends Controller
         $invoice->save();
 
         $data = array_map(function ($stock) use ($invoice) {
-            $product_ref = $stock[0];
-            $product_name = $stock[1];
+            $product_ref = trim($stock[0]);
+            $product_name = trim($stock[1]);
             $quantity = $stock[2];
             $price = $stock[3];
-            $currency = $stock[4];
+            $currency = trim($stock[4]);
 
             $product = Product::firstOrNew(['ref' => $product_ref]);
 
@@ -61,9 +61,6 @@ class StockController extends Controller
 
             return $product;
         }, $data);
-
-
-
 
         return redirect('admin/stock');
     }
