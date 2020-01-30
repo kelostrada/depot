@@ -18,6 +18,7 @@ class CreateRatesTable extends Migration
             $table->date('date');
             $table->decimal('value', 8, 4);
             $table->timestamps();
+            $table->unique(['date', 'currency']);
         });
     }
 
