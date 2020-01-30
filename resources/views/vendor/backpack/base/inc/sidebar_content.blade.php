@@ -5,4 +5,4 @@
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('product') }}'><i class='nav-icon fa fa-question'></i> Products</a></li>
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('invoice') }}'><i class='nav-icon fa fa-question'></i> Invoices</a></li>
 
-<li class='nav-item'><a class='nav-link' href='{{ backpack_url('rates') }}'><i class='nav-icon fa fa-question'></i> Rates</a></li>
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('rate') }}'><i class='nav-icon fa fa-question'></i> Rates</a></li>

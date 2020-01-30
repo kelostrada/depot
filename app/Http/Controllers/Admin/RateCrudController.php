@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\RatesRequest;
+use App\Http\Requests\RateRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class RatesCrudController
+ * Class RateCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class RatesCrudController extends CrudController
+class RateCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -21,9 +21,9 @@ class RatesCrudController extends CrudController
 
     public function setup()
     {
-        $this->crud->setModel('App\Models\Rates');
-        $this->crud->setRoute(config('backpack.base.route_prefix') . '/rates');
-        $this->crud->setEntityNameStrings('rates', 'rates');
+        $this->crud->setModel('App\Models\Rate');
+        $this->crud->setRoute(config('backpack.base.route_prefix') . '/rate');
+        $this->crud->setEntityNameStrings('rate', 'rates');
     }
 
     protected function setupListOperation()
@@ -34,7 +34,7 @@ class RatesCrudController extends CrudController
 
     protected function setupCreateOperation()
     {
-        $this->crud->setValidation(RatesRequest::class);
+        $this->crud->setValidation(RateRequest::class);
 
         // TODO: remove setFromDb() and manually define Fields
         $this->crud->setFromDb();
