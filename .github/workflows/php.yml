@@ -1,0 +1,60 @@
+name: Depot CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  laravel:
+    name: Build, Test & Deploy Laravel 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP, with composer and extensions
+      uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+      with:
+        php-version: '7.3'
+        extensions: mbstring, dom, fileinfo
+        coverage: xdebug
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Install Composer dependencies
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+    
+    - name: Prepare the application
+      run: |
+        php -r "file_exists('.env') || copy('.env.example', '.env');"
+        php artisan key:generate
+    
+    - name: Clear Config
+      run: php artisan config:clear
+
+    - name: Run test suite
+      run: vendor/bin/phpunit --coverage-text
+
+    - name: Use Node.js 11.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '11.x'
+
+    - run: npm ci
+
+    - run: npm run prod
+
+    - name: 📂 Deploy files
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server: ftp.kelostrada.pl
+        username: depot@kelostrada.pl
+        password: ${{ secrets.ftp_password }}
+        exclude: .git*
+          - .git*/**
+          -  **/.git*/**
+          - node_modules/**
+          - node_modules/**/*
+          - .env
+
