@@ -2,7 +2,7 @@
 
 ## About Depot
 
-Depot is a simple app for managing product stocks, loading invoices and making summarized itemizations at the end of the year. It's a project I started to learn Laravel and help my own online store. Maybe in the future it will be introduced for broader audience, but for now treat this only as a educational project.
+Depot is a simple app for managing product stocks, loading invoices and making summarized itemizations at the end of the year. It's a project I started to learn Laravel and help my own online store. Maybe in the future it will be introduced for broader audience, but for now treat this only as an educational project.
 
 ## License
 
