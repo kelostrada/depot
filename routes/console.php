@@ -43,7 +43,7 @@ function fetchRates($date)
     }
 }
 
-Artisan::command('fetch_rates {date}', function($date) {
+Artisan::command('fetch_rates {date=yesterday}', function($date) {
     $this->comment('Fetching rates...');
 
     $date = new Carbon($date);
