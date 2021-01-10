@@ -1,4 +1,4 @@
-name: Depot CI & CD
+name: Depot CI
 
 on:
   push:
@@ -51,3 +51,11 @@ jobs:
 
     - name: Run test suite
       run: vendor/bin/phpunit --coverage-text
+
+    - name: Use Node.js 11.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '11.x'
+
+    - run: npm ci
+    - run: npm run prod
