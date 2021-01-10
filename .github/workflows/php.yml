@@ -48,7 +48,7 @@ jobs:
     - name: 📂 Deploy files
       uses: SamKirkland/FTP-Deploy-Action@4.0.0
       with:
-        server: ftp.kelostrada.com
+        server: ftp.kelostrada.pl
         username: depot@kelostrada.pl
         password: ${{ secrets.ftp_password }}
         dry-run: true
