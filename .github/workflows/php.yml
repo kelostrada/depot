@@ -6,7 +6,7 @@ on:
 
 jobs:
   laravel:
-    name: Laravel 
+    name: Build, Test & Deploy Laravel 
     runs-on: ubuntu-latest
 
     steps:
@@ -42,5 +42,20 @@ jobs:
         node-version: '11.x'
 
     - run: npm ci
-    
+
     - run: npm run prod
+
+    - name: 📂 Deploy files
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server: ftp.kelostrada.com
+        username: depot@kelostrada.pl
+        password: ${{ secrets.ftp_password }}
+        dry-run: true
+        exclude: .git*
+          - .git*/**
+          -  **/.git*/**
+          - node_modules/**
+          - node_modules/**/*
+          - .env
+
