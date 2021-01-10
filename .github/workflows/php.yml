@@ -52,7 +52,6 @@ jobs:
         username: depot@kelostrada.pl
         password: ${{ secrets.ftp_password }}
         dry-run: true
-        protocol: ftps
         exclude: .git*
           - .git*/**
           -  **/.git*/**
