@@ -50,4 +50,4 @@ jobs:
       run: php artisan config:clear
 
     - name: Run test suite
-      run: composer run-script test
+      run: vendor/bin/phpunit --coverage-text
