@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Http\Request;
+use Symfony\Component\DomCrawler\Crawler;
 
 class StockController extends Controller
 {
@@ -17,51 +18,216 @@ class StockController extends Controller
 
     public function importStock(Request $request)
     {
-        $invoice_name = $request->get('invoice');
-        $invoice_date = $request->get('date');
+        $company = $request->get('company');
+        $content = $request->get('invoice_content');
 
-        $data = $request->file('invoice_file')->get();
-        $data = explode("\r\n", $data);
-        $data = array_map(function ($line) {
-           return explode(';', $line);
-        }, $data);
+        if ($company == "Blackfire") {
+          $this->addBlackfireStock($content);
+        }
+
+        if ($company == "Ynaris") {
+          $this->addYnarisStock($content);
+        }
+
+        return redirect('admin/stock');
+    }
+
+    private function addBlackfireStock($content) {
+        // find invoice name and date
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table/tbody/tr[td[text()='Invoice ID']]/td[2]");
+        $invoice_name = $crawler->text();
+
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table/tbody/tr[td[text()='Invoice Date']]/td[2]");
+        $invoice_date = $crawler->text();
 
         $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
         $invoice->name = $invoice_name;
         $invoice->date = $invoice_date;
         $invoice->save();
 
-        $data = array_map(function ($stock) use ($invoice) {
-            $product_ref = trim($stock[0]);
-            $product_name = trim($stock[1]);
-            $quantity = $stock[2];
-            $price = $stock[3];
-            $currency = trim($stock[4]);
+        // find tables that have headers (only invoice related tables have headers in blackfire invoices)
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table/tbody[tr/th]");
+        $data = [];
 
-            $product = Product::firstOrNew(['ref' => $product_ref]);
+        foreach ($crawler as $tbody) {
+            $tbody = new Crawler($tbody);
+            $tbody = $tbody->filterXPath("tbody/tr[td]");
+            foreach($tbody as $tr) {
+                $row = [];
+                $tr = new Crawler($tr);
+                $tr = $tr->filter('td');
+                foreach ($tr as $td) {
+                    $row[] = $td->nodeValue;
+                }
+                $data[] = $row;
+            }
+        }
 
-            if (!$product->id) {
+        $data = array_filter($data, function($row) {
+            return count($row) == 7;
+        });
+
+        $data = array_values($data);
+
+        $data = array_map(function($row) {
+            $ref_upc = explode("\n", $row[1]);
+            $ref = trim($ref_upc[0]);
+            $upc = isset($ref_upc[1]) ? trim($ref_upc[1]) : "";
+            $name = $row[2];
+
+            if (strpos($name, "UP - ") === 0) {
+                $ref = "UP-{$ref}";
+            }
+
+            return [
+                'ref' => $ref,
+                'upc' => $upc,
+                'name' => $row[2],
+                'quantity' => $row[4],
+                'price' => floatval(trim(str_replace(["€", ","], ["", "."], $row[5]))),
+                'currency' => 'EUR'
+            ];
+        }, $data);
+
+        $data = array_filter($data, function($row) {
+            return $row['price'] > 0;
+        });
+
+        $data = array_values($data);
+
+        foreach ($data as $product_data) {
+            $products = Product::where('ref', $product_data['ref'])->orWhere('upc', $product_data['upc'])->get();
+            $foundProductsCount = count($products);
+
+            if ($foundProductsCount > 1) {
+                throw new \Exception("Conflict with product: {$product_data['name']} {$product_data['ref']} {$product_data['upc']}");
+            }
+
+            if ($foundProductsCount == 1) {
+                $product = $products[0];
+            } else {
+                $product = new Product();
                 $product->quantity = 0;
                 $product->price = 0;
-                $product->name = $product_name;
-                $product->ref = $product_ref;
+                $product->name = $product_data['name'];
+                $product->ref = $product_data['ref'];
+                $product->upc = $product_data['upc'];
                 $product->save();
             }
 
-            if($invoice->stocks()->where('product_id', '=', $product->id)->get()->isEmpty()) {
+            if ($invoice->stocks()->where('product_id', '=', $product->id)->get()->isEmpty()) {
                 $stock = new Stock();
                 $stock->product_id = $product->id;
                 $stock->invoice_id = $invoice->id;
-                $stock->quantity = $quantity;
-                $stock->price = $price;
-                $stock->currency = $currency;
+                $stock->quantity = $product_data['quantity'];
+                $stock->price = $product_data['price'];
+                $stock->currency = $product_data['currency'];
 
                 $stock->save();
             }
+        }
+    }
 
-            return $product;
+    private function addYnarisStock($content) {
+      // echo $content;
+        // find invoice name and date
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table/tbody/tr[td/p[text()='Facture']]/td[2]");
+        $invoice_name = $crawler->text();
+
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table/tbody/tr[td/p[text()='Date de facturation']]/td[2]");
+        $invoice_date = $crawler->text();
+        $invoice_date = str_replace("/", ".", $invoice_date);
+
+        $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
+        $invoice->name = $invoice_name;
+        $invoice->date = $invoice_date;
+        $invoice->save();
+
+        // find tables that have headers (only invoice related tables have headers in blackfire invoices)
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table[thead/tr/th]/tbody");
+        $data = [];
+
+        foreach ($crawler as $tbody) {
+            $tbody = new Crawler($tbody);
+            $tbody = $tbody->filterXPath("tbody/tr[td]");
+            foreach($tbody as $tr) {
+                $row = [];
+                $tr = new Crawler($tr);
+                $tr = $tr->filter('td');
+                foreach ($tr as $td) {
+                    $row[] = $td->nodeValue;
+                }
+                $data[] = $row;
+            }
+        }
+
+        $data = array_filter($data, function($row) {
+            return count($row) == 5;
+        });
+
+        $data = array_values($data);
+
+        $data = array_map(function($row) {
+            $ref = str_replace(" ", "-", trim($row[0]));
+
+            if (strpos($ref, "VGE-V-") === 0) {
+                if (strpos($ref, "-SP") !== false) {
+                    $ref = str_replace("-SP", "SP", $ref);
+                }
+                $ref = "{$ref}-EN";
+            }
+
+            return [
+                'ref' => $ref,
+                'name' => trim($row[1]),
+                'quantity' => (int)trim($row[2]),
+                'price' => floatval(trim(str_replace(["€", ","], ["", "."], $row[3]))),
+                'currency' => 'EUR'
+            ];
         }, $data);
 
-        return redirect('admin/stock');
+        $data = array_filter($data, function($row) {
+            return $row['price'] > 0;
+        });
+
+        $data = array_values($data);
+
+        foreach ($data as $product_data) {
+            $products = Product::where('ref', 'like', "%{$product_data['ref']}%")->get();
+            $foundProductsCount = count($products);
+
+            if ($foundProductsCount > 1) {
+                throw new \Exception("Conflict with product: {$product_data['name']} {$product_data['ref']} {$product_data['upc']}");
+            }
+
+            if ($foundProductsCount == 1) {
+                $product = $products[0];
+            } else {
+                $product = new Product();
+                $product->quantity = 0;
+                $product->price = 0;
+                $product->name = $product_data['name'];
+                $product->ref = $product_data['ref'];
+                $product->upc = "";
+                $product->save();
+            }
+
+            if ($invoice->stocks()->where('product_id', '=', $product->id)->get()->isEmpty()) {
+                $stock = new Stock();
+                $stock->product_id = $product->id;
+                $stock->invoice_id = $invoice->id;
+                $stock->quantity = $product_data['quantity'];
+                $stock->price = $product_data['price'];
+                $stock->currency = $product_data['currency'];
+
+                $stock->save();
+            }
+        }
     }
 }
