@@ -183,6 +183,10 @@ class StockController extends Controller
 
             if ($foundProductsCount == 1) {
                 $product = $products[0];
+                if (empty($product->upc)) {
+                    $product->upc = $product_data['upc'];
+                    $product->save();
+                }
             } else {
                 $product = new Product();
                 $product->quantity = 0;
