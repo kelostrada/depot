@@ -114,4 +114,15 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Registration
+    |--------------------------------------------------------------------------
+    |
+    | Here you may disable registration by using the config environment
+    | variable AUTH_REGISTER. 
+    |
+    */
+
+    'registration' => env('AUTH_REGISTER', true),
 ];
