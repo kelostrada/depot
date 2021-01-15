@@ -41,7 +41,7 @@ class StockController extends Controller
 
         $crawler = new Crawler($content);
         $crawler = $crawler->filterXPath("//table/tbody/tr[td[text()='Invoice Date']]/td[2]");
-        $carbon = new Carbon($crawler->text());
+        $carbon = Carbon::createFromFormat('d.m.Y', $crawler->text());
         $invoice_date = $carbon->isoFormat("YYYY-MM-DD");
 
         $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
@@ -110,7 +110,7 @@ class StockController extends Controller
 
         $crawler = new Crawler($content);
         $crawler = $crawler->filterXPath("//table/tbody/tr[td/p[text()='Date de facturation']]/td[2]");
-        $carbon = new Carbon($crawler->text());
+        $carbon = Carbon::createFromFormat('d/m/Y', $crawler->text());
         $invoice_date = $carbon->isoFormat("YYYY-MM-DD");
 
         $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
