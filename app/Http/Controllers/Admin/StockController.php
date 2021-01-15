@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Stock;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -40,7 +41,8 @@ class StockController extends Controller
 
         $crawler = new Crawler($content);
         $crawler = $crawler->filterXPath("//table/tbody/tr[td[text()='Invoice Date']]/td[2]");
-        $invoice_date = $crawler->text();
+        $carbon = new Carbon($crawler->text());
+        $invoice_date = $carbon->isoFormat("YYYY-MM-DD");
 
         $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
         $invoice->name = $invoice_name;
@@ -82,6 +84,10 @@ class StockController extends Controller
                 $ref = "UP-{$ref}";
             }
 
+            if (strpos($name, "Dragon Shield") === 0) {
+                $ref = "AT-{$ref}";
+            }
+
             return [
                 'ref' => $ref,
                 'upc' => $upc,
@@ -92,43 +98,7 @@ class StockController extends Controller
             ];
         }, $data);
 
-        $data = array_filter($data, function($row) {
-            return $row['price'] > 0;
-        });
-
-        $data = array_values($data);
-
-        foreach ($data as $product_data) {
-            $products = Product::where('ref', $product_data['ref'])->orWhere('upc', $product_data['upc'])->get();
-            $foundProductsCount = count($products);
-
-            if ($foundProductsCount > 1) {
-                throw new \Exception("Conflict with product: {$product_data['name']} {$product_data['ref']} {$product_data['upc']}");
-            }
-
-            if ($foundProductsCount == 1) {
-                $product = $products[0];
-            } else {
-                $product = new Product();
-                $product->quantity = 0;
-                $product->price = 0;
-                $product->name = $product_data['name'];
-                $product->ref = $product_data['ref'];
-                $product->upc = $product_data['upc'];
-                $product->save();
-            }
-
-            if ($invoice->stocks()->where('product_id', '=', $product->id)->get()->isEmpty()) {
-                $stock = new Stock();
-                $stock->product_id = $product->id;
-                $stock->invoice_id = $invoice->id;
-                $stock->quantity = $product_data['quantity'];
-                $stock->price = $product_data['price'];
-                $stock->currency = $product_data['currency'];
-
-                $stock->save();
-            }
-        }
+        $this->addProductsStocks($data, $invoice);
     }
 
     private function addYnarisStock($content) {
@@ -140,8 +110,8 @@ class StockController extends Controller
 
         $crawler = new Crawler($content);
         $crawler = $crawler->filterXPath("//table/tbody/tr[td/p[text()='Date de facturation']]/td[2]");
-        $invoice_date = $crawler->text();
-        $invoice_date = str_replace("/", ".", $invoice_date);
+        $carbon = new Carbon($crawler->text());
+        $invoice_date = $carbon->isoFormat("YYYY-MM-DD");
 
         $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
         $invoice->name = $invoice_name;
@@ -185,6 +155,7 @@ class StockController extends Controller
 
             return [
                 'ref' => $ref,
+                'upc' => '',
                 'name' => trim($row[1]),
                 'quantity' => (int)trim($row[2]),
                 'price' => floatval(trim(str_replace(["€", ","], ["", "."], $row[3]))),
@@ -192,6 +163,10 @@ class StockController extends Controller
             ];
         }, $data);
 
+        $this->addProductsStocks($data, $invoice);
+    }
+
+    private function addProductsStocks($data, $invoice) {
         $data = array_filter($data, function($row) {
             return $row['price'] > 0;
         });
@@ -203,7 +178,7 @@ class StockController extends Controller
             $foundProductsCount = count($products);
 
             if ($foundProductsCount > 1) {
-                throw new \Exception("Conflict with product: {$product_data['name']} {$product_data['ref']} {$product_data['upc']}");
+                throw new \Exception("Product conflict: {$product_data['ref']} {$product_data['upc']}");
             }
 
             if ($foundProductsCount == 1) {
@@ -214,7 +189,7 @@ class StockController extends Controller
                 $product->price = 0;
                 $product->name = $product_data['name'];
                 $product->ref = $product_data['ref'];
-                $product->upc = "";
+                $product->upc = $product_data['upc'];
                 $product->save();
             }
 
