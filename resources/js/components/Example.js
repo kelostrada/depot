@@ -29,7 +29,7 @@ class Example extends React.Component {
 
                             <div className="card-body">
                                 <ul>
-                                { this.state.stocks.map((item, index) => <li key={index}>{item.quantity}x {item.product.name}, Invoice: {item.invoice.name}</li>) }
+                                { this.state.stocks.map((item, index) => <li key={index}>{item.quantity}x {item.ref}, Invoice: {item.invoice}, Price: {item.rated_price.toFixed(2)} PLN</li>) }
                                 </ul>
                             </div>
                         </div>
