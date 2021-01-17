@@ -174,7 +174,10 @@ class StockController extends Controller
         $data = array_values($data);
 
         foreach ($data as $product_data) {
-            $products = Product::where('ref', $product_data['ref'])->orWhere('upc', $product_data['upc'])->get();
+            $products = Product::where('ref', $product_data['ref'])
+                ->orWhere(function($q) use ($product_data) {
+                    return $q->where('upc', $product_data['upc'])->where('upc', '!=', '')->whereNotNull('upc');
+                })->get();
             $foundProductsCount = count($products);
 
             if ($foundProductsCount > 1) {
