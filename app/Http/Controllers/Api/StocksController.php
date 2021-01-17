@@ -17,6 +17,29 @@ class StocksController extends Controller
      */
     public function index()
     {
+        return $this->getStocks();
+    }
+
+    /**
+     * Download CSV with stocks
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function csv()
+    {
+        $result = $this->getStocks();
+        $csv = "";
+
+        foreach ($result as $item) {
+            $csv .= $item['id'] . ";" . $item['name'] . ";" . $item['quantity'] . ";";
+            $csv .= $item['rated_price'] . ";" . $item['rated_total'] . ";";
+            $csv .= $item['vat_total'] . "\n";
+        }
+
+        return $csv;
+    }
+
+    private function getStocks() {
         $products = Product::with(['stocks.invoice'])->where('quantity', '>', 0)->get();
         $result = [];
 
@@ -57,7 +80,9 @@ class StocksController extends Controller
                     'price' => $price,
                     'total' => round($quantity * $price, 2),
                     'rated_price' => $rated_price,
-                    'rated_total' => $rated_price * $quantity
+                    'rated_total' => $rated_price * $quantity,
+                    'vat_total' => ($sorted_stock[$i]->currency == 'PLN' ? round($rated_price * $quantity * 0.23, 2) : 0),
+                    'currency' => $sorted_stock[$i]->currency
                 ];
 
                 $product_quantity -= $sorted_stock[$i]->quantity;
@@ -66,13 +91,5 @@ class StocksController extends Controller
         }
 
         return $result;
-
-        $csv = "";
-
-        foreach ($result as $item) {
-            $csv .= $item['id'] . ";" . $item['name'] . ";" . $item['quantity'] . ";" . $item['price'] . ";" . $item['total'] . "\n";
-        }
-
-        return $csv;
     }
 }
