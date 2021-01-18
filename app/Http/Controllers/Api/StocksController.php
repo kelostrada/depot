@@ -70,6 +70,7 @@ class StocksController extends Controller
 
                 $price = (float)$sorted_stock[$i]->price;
                 $rated_price = round($price * $rate, 2);
+                $vat = $sorted_stock[$i]->currency == 'PLN' ? round($rated_price * 0.23, 2) : 0;
 
                 $result[] = [
                     'id' => $sorted_stock[$i]->id,
@@ -81,7 +82,8 @@ class StocksController extends Controller
                     'total' => round($quantity * $price, 2),
                     'rated_price' => $rated_price,
                     'rated_total' => $rated_price * $quantity,
-                    'vat_total' => ($sorted_stock[$i]->currency == 'PLN' ? round($rated_price * $quantity * 0.23, 2) : 0),
+                    'vat' => $vat,
+                    'vat_total' => $vat * $quantity,
                     'currency' => $sorted_stock[$i]->currency
                 ];
 
