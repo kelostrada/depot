@@ -20,6 +20,11 @@ class StocksController extends Controller
         return $this->getStocks();
     }
 
+    public function all()
+    {
+        return $this->getAllStocks();
+    }
+
     /**
      * Download CSV with stocks
      *
@@ -77,6 +82,7 @@ class StocksController extends Controller
                     'name' => $product->name,
                     'ref' => $product->ref,
                     'invoice' => $sorted_stock[$i]->invoice->name,
+                    'date' => $sorted_stock[$i]->invoice->date,
                     'quantity' => $quantity,
                     'price' => $price,
                     'total' => round($quantity * $price, 2),
@@ -89,6 +95,55 @@ class StocksController extends Controller
 
                 $product_quantity -= $sorted_stock[$i]->quantity;
                 $i++;
+            }
+        }
+
+        return $result;
+    }
+
+    private function getAllStocks() {
+        $products = Product::with(['stocks.invoice'])->get();
+        $result = [];
+
+        foreach ($products as $product)
+        {
+            $sorted_stock = $product->stocks->sortByDesc(function($stock, $key) {
+                return $stock->invoice->date;
+            })->all();
+            $sorted_stock = array_values($sorted_stock);
+
+            foreach ($sorted_stock as $stock) {
+                $rate = Rate::where('date', '<', $stock->invoice->date)
+                    ->where('currency', $stock->currency)
+                    ->orderByDesc('date')
+                    ->limit(1)
+                    ->first();
+
+                if ($rate) {
+                    $rate = $rate->value;
+                } else {
+                    $rate = 1.0;
+                }
+
+                $price = (float)$stock->price;
+                $rated_price = round($price * $rate, 2);
+                $vat = $stock->currency == 'PLN' ? round($rated_price * 0.23, 2) : 0;
+
+                $result[] = [
+                    'id' => $stock->id,
+                    'name' => $product->name,
+                    'ref' => $product->ref,
+                    'invoice' => $stock->invoice->name,
+                    'date' => $stock->invoice->date,
+                    'quantity' => $stock->quantity,
+                    'price' => $price,
+                    'total' => round($stock->quantity * $price, 2),
+                    'rated_price' => $rated_price,
+                    'rated_total' => $rated_price * $stock->quantity,
+                    'vat' => $vat,
+                    'vat_total' => $vat * $stock->quantity,
+                    'currency' => $stock->currency
+                ];
             }
         }
 
