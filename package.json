@@ -17,7 +17,7 @@
         "fibers": "^5.0.0",
         "jquery": "^3.5",
         "laravel-mix": "^5.0.9",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.21",
         "node-sass": "^4.0.0",
         "object-path": ">=0.11.5",
         "popper.js": "^1.12",
