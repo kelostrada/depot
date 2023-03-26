@@ -44,6 +44,15 @@ class InvoiceCrudController extends CrudController
     {
         // TODO: remove setFromDb() and manually define Columns, maybe Filters
         $this->crud->setFromDb();
+
+        $this->crud->addColumn([
+            'name'     => 'created_at',
+            'label'    => 'Created At',
+            'type'     => 'closure',
+            'function' => function($entry) {
+                return 'Created on '.$entry->created_at;
+            }   
+        ]);
     }
 
     protected function setupCreateOperation()

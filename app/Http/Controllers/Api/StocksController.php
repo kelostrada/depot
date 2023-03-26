@@ -79,7 +79,7 @@ class StocksController extends Controller
 
                 $result[] = [
                     'id' => $sorted_stock[$i]->id,
-                    'name' => $product->name,
+                    'name' => str_replace("\n", "", $product->name),
                     'ref' => $product->ref,
                     'invoice' => $sorted_stock[$i]->invoice->name,
                     'date' => $sorted_stock[$i]->invoice->date,
