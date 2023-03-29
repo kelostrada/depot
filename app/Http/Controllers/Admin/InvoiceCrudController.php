@@ -38,6 +38,8 @@ class InvoiceCrudController extends CrudController
             'visibleInExport' => false, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
+
+        $this->crud->enableExportButtons();
     }
 
     protected function setupListOperation()

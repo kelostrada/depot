@@ -39,7 +39,7 @@ class Invoice extends Model
         // return §1;
         return $this->stocks()->get()->reduce(function($acc, $stock) {
             return $acc + $stock->getRealPriceAttribute() * $stock->quantity;
-        }, 0) . ' PLN';
+        }, 0);
     }
 
     /*
