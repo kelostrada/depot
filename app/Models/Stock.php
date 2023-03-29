@@ -67,9 +67,10 @@ class Stock extends Model
         $date = $this->invoice->date;
         $carbon = new Carbon($date);
         $rate = $this->getRate($carbon, $this->currency);
+        $rate = $rate ? $rate->value : 1;
         $price = $this->price;
-//        $price = str_replace(',', '.', $this->price);
-        return round((double)$price * (double)$rate->value, 2);
+        //        $price = str_replace(',', '.', $this->price);
+        return round((double) $price * (double) $rate, 2);
     }
 
     /*
@@ -79,10 +80,16 @@ class Stock extends Model
     */
     private function getRate(Carbon $carbon, $currency)
     {
-        $rate = Rate::where(['date' => $carbon->toDateString(), 'currency' => $currency])->first();
-        if ($rate) return $rate;
-        $carbon->subDay();
-        return $this->getRate($carbon, $currency);
+        $rate = Rate::where([
+            ['date', '<=', $carbon->toDateString()],
+            ['currency', '=', $currency]
+        ])
+            ->orderBy('date', 'desc')
+            ->firstOr(function () use ($currency) {
+                return Rate::where('currency', $currency)->orderBy('date', 'asc')->first();
+            });
+
+        return $rate;
     }
 
 }

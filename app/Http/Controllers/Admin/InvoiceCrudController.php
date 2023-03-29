@@ -50,8 +50,15 @@ class InvoiceCrudController extends CrudController
             'label'    => 'Created At',
             'type'     => 'closure',
             'function' => function($entry) {
-                return 'Created on '.$entry->created_at;
+                return $entry->created_at;
             }   
+        ]);
+
+        $this->crud->addColumn([
+            'name'     => 'value',
+            'label'    => 'Value',
+            'type'     => 'model_function',
+            'function_name' => 'getValue'
         ]);
     }
 

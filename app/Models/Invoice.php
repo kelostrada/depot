@@ -33,6 +33,15 @@ class Invoice extends Model
         return $this->hasMany('App\Models\Stock');
     }
 
+    public function getValue()
+    {
+        // var_dump($this->stocks()->get()->toArray());
+        // return §1;
+        return $this->stocks()->get()->reduce(function($acc, $stock) {
+            return $acc + $stock->getRealPriceAttribute() * $stock->quantity;
+        }, 0) . ' PLN';
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS
