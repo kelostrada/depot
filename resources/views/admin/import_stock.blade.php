@@ -14,6 +14,7 @@
                                 <label for="company" class="col-sm-4 col-form-label text-md-right">{{ __('Company') }}</label>
                                 <div class="col-md-6">
                                     <select class="form-control" name="company" required autofocus>
+                                      <option>Blackfire New</option>
                                       <option>Blackfire</option>
                                       <option>Ynaris</option>
                                       <option>Other</option>

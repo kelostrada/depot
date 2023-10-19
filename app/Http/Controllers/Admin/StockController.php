@@ -10,6 +10,11 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
+function round_up ( $value, $precision ) { 
+    $pow = pow ( 10, $precision ); 
+    return ( ceil ( $pow * $value ) + ceil ( $pow * $value - ceil ( $pow * $value ) ) ) / $pow; 
+} 
+
 class StockController extends Controller
 {
     public function index()
@@ -22,6 +27,10 @@ class StockController extends Controller
         $company = $request->get('company');
         $content = $request->get('invoice_content');
 
+        if ($company == "Blackfire New") {
+            $this->addBlackfireNewStock($content);
+        }
+
         if ($company == "Blackfire") {
           $this->addBlackfireStock($content);
         }
@@ -31,6 +40,68 @@ class StockController extends Controller
         }
 
         return redirect('admin/stock');
+    }
+
+    private function addBlackfireNewStock($content) {
+        // find invoice name and date
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//h1[contains(text(), 'POSTED INVOICE DETAIL')]");
+        $invoice_name = trim(str_replace('POSTED INVOICE DETAIL', '', $crawler->text()));
+        $invoice_name = trim(str_replace(chr(194) . chr(160), '', $invoice_name));
+
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table/tbody/tr[td[text()='Document date']]/td[2]");
+        $carbon = Carbon::createFromFormat('d/m/Y', $crawler->text());
+        $invoice_date = $carbon->isoFormat("YYYY-MM-DD");
+
+        $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
+        $invoice->name = $invoice_name;
+        $invoice->date = $invoice_date;
+        $invoice->save();
+
+        // find tables that have headers (only invoice related tables have headers in blackfire invoices)
+        $crawler = new Crawler($content);
+        $crawler = $crawler->filterXPath("//table[thead/tr/th]");
+        $data = [];
+
+        foreach ($crawler as $table) {
+            $table = new Crawler($table);
+            $trs = $table->filterXPath("table/tbody/tr[td]");
+            foreach($trs as $tr) {
+                $row = [];
+                $tr = new Crawler($tr);
+                $tr = $tr->filter('td');
+                foreach ($tr as $td) {
+                    $row[] = $td->nodeValue;
+                }
+                $data[] = $row;
+            }
+        }
+
+        $data = array_filter($data, function($row) {
+            return count($row) == 10;
+        });
+
+        $data = array_values($data);
+
+        $data = array_map(function($row) {
+            $ref = trim($row[0]);
+            $name = trim($row[1]);
+            $quantity = trim($row[6]);
+            $discount = floatval(str_replace(["%", ","], ['', "."], trim($row[5])));
+            $price = round_up(floatval(trim(str_replace(["€", ","], ["", "."], $row[4]))) * (100.0 - $discount) / 100.0, 2);
+
+            return [
+                'ref' => $ref,
+                'upc' => '',
+                'name' => $name,
+                'quantity' => $quantity,
+                'price' => $price,
+                'currency' => 'EUR'
+            ];
+        }, $data);
+
+        $this->addProductsStocks($data, $invoice);
     }
 
     private function addBlackfireStock($content) {
