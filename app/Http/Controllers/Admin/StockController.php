@@ -10,10 +10,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
-function round_up ( $value, $precision ) { 
-    $pow = pow ( 10, $precision ); 
-    return ( ceil ( $pow * $value ) + ceil ( $pow * $value - ceil ( $pow * $value ) ) ) / $pow; 
-} 
+function round_up ( $value, $precision ) {
+    $pow = pow ( 10, $precision );
+    return ( ceil ( $pow * $value ) + ceil ( $pow * $value - ceil ( $pow * $value ) ) ) / $pow;
+}
 
 class StockController extends Controller
 {
@@ -45,8 +45,8 @@ class StockController extends Controller
     private function addBlackfireNewStock($content) {
         // find invoice name and date
         $crawler = new Crawler($content);
-        $crawler = $crawler->filterXPath("//h1[contains(text(), 'POSTED INVOICE DETAIL')]");
-        $invoice_name = trim(str_replace('POSTED INVOICE DETAIL', '', $crawler->text()));
+        $crawler = $crawler->filterXPath("//h1[contains(text(), 'Posted invoice detail')]");
+        $invoice_name = trim(str_replace('Posted invoice detail', '', $crawler->text()));
         $invoice_name = trim(str_replace(chr(194) . chr(160), '', $invoice_name));
 
         $crawler = new Crawler($content);
