@@ -100,7 +100,6 @@ class StocksController extends Controller
 
         return $result;
     }
-
     private function getAllStocks() {
         $products = Product::with(['stocks.invoice'])->get();
         $result = [];
@@ -145,6 +144,17 @@ class StocksController extends Controller
                     'currency' => $stock->currency
                 ];
             }
+        }
+
+        $sort_by = request('sort_by');
+        $sort_direction = request('sort_direction', 'asc');
+
+        if ($sort_by) {
+            $result = collect($result)->sortBy($sort_by);
+            if ($sort_direction === 'desc') {
+                $result = $result->reverse();
+            }
+            $result = $result->values()->all();
         }
 
         return $result;
