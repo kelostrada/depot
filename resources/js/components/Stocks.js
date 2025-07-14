@@ -1,7 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import axios from 'axios';
-import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import React from "react";
+import ReactDOM from "react-dom";
+import axios from "axios";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 class Stocks extends React.Component {
     constructor(props) {
@@ -9,7 +9,7 @@ class Stocks extends React.Component {
         this.state = {
             stocks: [],
             sortField: null,
-            sortDirection: 'asc'
+            sortDirection: "asc",
         };
     }
 
@@ -18,41 +18,43 @@ class Stocks extends React.Component {
     }
 
     fetchStocks = () => {
-        const token = $('meta[name=token]')[0].content;
+        const token = $("meta[name=token]")[0].content;
         const { sortField, sortDirection } = this.state;
 
-        axios.get('/api/stocks/all', {
-            headers: { 'Authorization': `Bearer ${token}` },
-            params: {
-                sort_by: sortField,
-                sort_direction: sortDirection
-            }
-        }).then(response => {
-            const stocks = response.data;
-            this.setState({ stocks });
-        });
-    }
+        axios
+            .get("api/stocks/all", {
+                headers: { Authorization: `Bearer ${token}` },
+                params: {
+                    sort_by: sortField,
+                    sort_direction: sortDirection,
+                },
+            })
+            .then((response) => {
+                const stocks = response.data;
+                this.setState({ stocks });
+            });
+    };
 
     handleSort = (field) => {
-        this.setState(prevState => {
-            let direction = 'asc';
+        this.setState((prevState) => {
+            let direction = "asc";
             if (prevState.sortField === field) {
-                direction = prevState.sortDirection === 'asc' ? 'desc' : 'asc';
+                direction = prevState.sortDirection === "asc" ? "desc" : "asc";
             }
             return {
                 sortField: field,
-                sortDirection: direction
+                sortDirection: direction,
             };
         }, this.fetchStocks);
-    }
+    };
 
     getSortIcon = (field) => {
         const { sortField, sortDirection } = this.state;
         if (sortField !== field) {
             return <FaSort />;
         }
-        return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
-    }
+        return sortDirection === "asc" ? <FaSortUp /> : <FaSortDown />;
+    };
 
     render() {
         return (
@@ -66,46 +68,102 @@ class Stocks extends React.Component {
                                 <table className="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th scope="col" onClick={() => this.handleSort('id')} style={{ cursor: 'pointer' }}>
-                                                # {this.getSortIcon('id')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort("id")
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                # {this.getSortIcon("id")}
                                             </th>
-                                            <th scope="col" onClick={() => this.handleSort('quantity')} style={{ cursor: 'pointer' }}>
-                                                Quantity {this.getSortIcon('quantity')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort("quantity")
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                Quantity{" "}
+                                                {this.getSortIcon("quantity")}
                                             </th>
-                                            <th scope="col" onClick={() => this.handleSort('rated_price')} style={{ cursor: 'pointer' }}>
-                                                Price {this.getSortIcon('rated_price')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort(
+                                                        "rated_price"
+                                                    )
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                Price{" "}
+                                                {this.getSortIcon(
+                                                    "rated_price"
+                                                )}
                                             </th>
-                                            <th scope="col" onClick={() => this.handleSort('ref')} style={{ cursor: 'pointer' }}>
-                                                Ref {this.getSortIcon('ref')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort("ref")
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                Ref {this.getSortIcon("ref")}
                                             </th>
-                                            <th scope="col" onClick={() => this.handleSort('name')} style={{ cursor: 'pointer' }}>
-                                                Name {this.getSortIcon('name')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort("name")
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                Name {this.getSortIcon("name")}
                                             </th>
-                                            <th scope="col" onClick={() => this.handleSort('invoice')} style={{ cursor: 'pointer' }}>
-                                                Invoice {this.getSortIcon('invoice')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort("invoice")
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                Invoice{" "}
+                                                {this.getSortIcon("invoice")}
                                             </th>
-                                            <th scope="col" onClick={() => this.handleSort('date')} style={{ cursor: 'pointer' }}>
-                                                Date {this.getSortIcon('date')}
+                                            <th
+                                                scope="col"
+                                                onClick={() =>
+                                                    this.handleSort("date")
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                Date {this.getSortIcon("date")}
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {this.state.stocks.map((item, index) =>
-                                            <tr key={index}>
-                                                <th scope="row">{item.id}</th>
-                                                <td>{item.quantity}</td>
-                                                <td>{item.rated_price.toFixed(2)}&nbsp;PLN</td>
-                                                <td>{item.ref}</td>
-                                                <td>{item.name}</td>
-                                                <td>{item.invoice}</td>
-                                                <td>{item.date}</td>
-                                            </tr>
+                                        {this.state.stocks.map(
+                                            (item, index) => (
+                                                <tr key={index}>
+                                                    <th scope="row">
+                                                        {item.id}
+                                                    </th>
+                                                    <td>{item.quantity}</td>
+                                                    <td>
+                                                        {item.rated_price.toFixed(
+                                                            2
+                                                        )}
+                                                        &nbsp;PLN
+                                                    </td>
+                                                    <td>{item.ref}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.invoice}</td>
+                                                    <td>{item.date}</td>
+                                                </tr>
+                                            )
                                         )}
                                     </tbody>
                                 </table>
-                                <ul>
-
-                                </ul>
+                                <ul></ul>
                             </div>
                         </div>
                     </div>
@@ -117,6 +175,6 @@ class Stocks extends React.Component {
 
 export default Stocks;
 
-if (document.getElementById('stocks')) {
-    ReactDOM.render(<Stocks />, document.getElementById('stocks'));
+if (document.getElementById("stocks")) {
+    ReactDOM.render(<Stocks />, document.getElementById("stocks"));
 }
