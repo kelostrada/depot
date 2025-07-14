@@ -57,39 +57,55 @@ class StockController extends Controller
         $invoice = Invoice::firstOrNew(['name' => $invoice_name]);
         $invoice->name = $invoice_name;
         $invoice->date = $invoice_date;
-        $invoice->save();
 
         // find tables that have headers (only invoice related tables have headers in blackfire invoices)
         $crawler = new Crawler($content);
         $crawler = $crawler->filterXPath("//table[thead/tr/th]");
+
         $data = [];
 
         foreach ($crawler as $table) {
             $table = new Crawler($table);
+
+            // Get headers first
+            $headers = [];
+            $ths = $table->filterXPath("table/thead/tr/th");
+            foreach ($ths as $th) {
+                $headers[] = trim($th->nodeValue);
+            }
+
+            // Get data rows
             $trs = $table->filterXPath("table/tbody/tr[td]");
             foreach($trs as $tr) {
                 $row = [];
                 $tr = new Crawler($tr);
-                $tr = $tr->filter('td');
-                foreach ($tr as $td) {
-                    $row[] = $td->nodeValue;
+                $tds = $tr->filter('td');
+                foreach ($tds as $index => $td) {
+                    $row[$headers[$index]] = $td->nodeValue;
                 }
                 $data[] = $row;
             }
         }
 
+
         $data = array_filter($data, function($row) {
-            return count($row) == 10;
+            return count($row) >= 9;
         });
 
         $data = array_values($data);
 
         $data = array_map(function($row) {
-            $ref = trim($row[0]);
-            $name = trim($row[1]);
-            $quantity = trim($row[6]);
-            $discount = floatval(str_replace(["%", ","], ['', "."], trim($row[5])));
-            $price = round_up(floatval(trim(str_replace(["€", ","], ["", "."], $row[4]))) * (100.0 - $discount) / 100.0, 2);
+            $ref = trim($row["Item No."]);
+            $name = trim($row["Title"]);
+            $quantity = trim($row["Qty"]);
+
+            if (array_key_exists("Discount", $row)) {
+                $discount = floatval(str_replace(["%", ","], ['', "."], trim($row["Discount"])));
+            } else {
+                $discount = 0;
+            }
+
+            $price = round_up(floatval(trim(str_replace(["€", ","], ["", "."], $row["Price"]))) * (100.0 - $discount) / 100.0, 2);
 
             return [
                 'ref' => $ref,
@@ -101,6 +117,18 @@ class StockController extends Controller
             ];
         }, $data);
 
+        $grouped_data = [];
+        foreach ($data as $item) {
+            $ref = $item['ref'];
+            if (!isset($grouped_data[$ref])) {
+                $grouped_data[$ref] = $item;
+            } else {
+                $grouped_data[$ref]['quantity'] += $item['quantity'];
+            }
+        }
+        $data = array_values($grouped_data);
+
+        $invoice->save();
         $this->addProductsStocks($data, $invoice);
     }
 
@@ -271,16 +299,16 @@ class StockController extends Controller
                 $product->save();
             }
 
-            if ($invoice->stocks()->where('product_id', '=', $product->id)->get()->isEmpty()) {
+            $stock = $invoice->stocks()->where('product_id', '=', $product->id)->first();
+            if (!$stock) {
                 $stock = new Stock();
                 $stock->product_id = $product->id;
                 $stock->invoice_id = $invoice->id;
-                $stock->quantity = $product_data['quantity'];
-                $stock->price = $product_data['price'];
-                $stock->currency = $product_data['currency'];
-
-                $stock->save();
             }
+            $stock->quantity = $product_data['quantity'];
+            $stock->price = $product_data['price'];
+            $stock->currency = $product_data['currency'];
+            $stock->save();
         }
     }
 }
