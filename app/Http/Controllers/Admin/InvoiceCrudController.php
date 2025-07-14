@@ -53,7 +53,7 @@ class InvoiceCrudController extends CrudController
             'type'     => 'closure',
             'function' => function($entry) {
                 return $entry->created_at;
-            }   
+            }
         ]);
 
         $this->crud->addColumn([
@@ -75,5 +75,48 @@ class InvoiceCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    protected function setupShowOperation()
+    {
+        $this->crud->set('show.setFromDb', false);
+
+        $this->crud->addColumn([
+            'name' => 'id',
+            'label' => 'ID',
+            'type' => 'number'
+        ]);
+
+        $this->crud->addColumn([
+            'name' => 'name',
+            'label' => 'Invoice Name',
+            'type' => 'text'
+        ]);
+
+        $this->crud->addColumn([
+            'name' => 'date',
+            'label' => 'Date',
+            'type' => 'date'
+        ]);
+
+        $this->crud->addColumn([
+            'name' => 'created_at',
+            'label' => 'Created At',
+            'type' => 'datetime'
+        ]);
+
+        $this->crud->addColumn([
+            'name' => 'updated_at',
+            'label' => 'Updated At',
+            'type' => 'datetime'
+        ]);
+
+        // Add a custom column for products preview
+        $this->crud->addColumn([
+            'name' => 'products_preview',
+            'label' => 'Details',
+            'type' => 'model_function',
+            'function_name' => 'getProductsPreviewHtml'
+        ]);
     }
 }
