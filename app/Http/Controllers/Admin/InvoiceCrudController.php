@@ -115,8 +115,8 @@ class InvoiceCrudController extends CrudController
         $this->crud->addColumn([
             'name' => 'products_preview',
             'label' => 'Details',
-            'type' => 'model_function',
-            'function_name' => 'getProductsPreviewHtml'
+            'type' => 'view',
+            'view' => 'crud.columns.invoice_products_preview'
         ]);
     }
 }
