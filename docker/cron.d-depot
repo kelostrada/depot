@@ -1,0 +1,5 @@
+# Replaces the shared-hosting crontab entry:
+#   0 9 * * * php artisan fetch_rates   (Europe/Warsaw — image TZ)
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 9 * * * www-data cd /var/www/html && php artisan fetch_rates >> /var/www/html/storage/logs/fetch_rates.log 2>&1
