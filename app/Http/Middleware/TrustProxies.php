@@ -12,7 +12,7 @@ class TrustProxies extends Middleware
      *
      * @var array|string
      */
-    protected $proxies;
+    protected $proxies = '*'; // behind the local cloudflared tunnel on the Air — honour X-Forwarded-Proto so URLs are https
 
     /**
      * The headers that should be used to detect proxies.
