@@ -8,7 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl git unzip libzip-dev cron \
     && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql bcmath zip
+    && docker-php-ext-install pdo_mysql bcmath zip opcache && docker-php-ext-enable opcache
 
 # Serve Laravel's public/ as the docroot.
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
