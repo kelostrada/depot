@@ -5,6 +5,15 @@ FROM php:7.4-apache
 ENV TZ=Europe/Warsaw
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# Debian 11 (bullseye) reached end of life on 2026-08-31 and moved to
+# archive.debian.org. The base image still points at deb.debian.org, where the
+# bullseye-security index is served but its pool files are gone (404 on
+# curl/git/unzip), so apt-get install fails. archive.debian.org carries bullseye
+# main + bullseye-updates (final 11.11, no Valid-Until) but not bullseye-security
+# yet - re-add it from the archive once it appears there.
+RUN printf 'deb http://archive.debian.org/debian bullseye main\ndeb http://archive.debian.org/debian bullseye-updates main\n' \
+        > /etc/apt/sources.list
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl git unzip libzip-dev cron \
     && rm -rf /var/lib/apt/lists/* \
