@@ -1,30 +1,4 @@
 services:
-  db:
-    # Matches the source server (seohost runs MariaDB 10.11) so the production
-    # dump imports 1:1. Small buffer pool — tiny DB.
-    image: mariadb:10.11
-    restart: unless-stopped
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --innodb-buffer-pool-size=64M
-    environment:
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${DB_DATABASE:-depot}
-      MARIADB_USER: ${DB_USERNAME:-depot}
-      MARIADB_PASSWORD: ${DB_PASSWORD}
-      TZ: Europe/Warsaw
-    volumes:
-      - depot_db:/var/lib/mysql
-      # Drop the production dump here before first start; imported only on a
-      # fresh volume.
-      - ./db:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   web:
     image: ghcr.io/kelostrada/depot:${VERSION:-latest}
     restart: unless-stopped
@@ -32,12 +6,17 @@ services:
       - "${PORT:-4004}:80"
     volumes:
       # Laravel reads its config from .env — one real file on the host
-      # (secrets: APP_KEY, DB creds; DB_HOST must be "db").
+      # (secrets: APP_KEY, DB creds; DB_HOST is "mariadb", see networks below).
       - ./app.env:/var/www/html/.env:ro
       - depot_storage:/var/www/html/storage
-    depends_on:
-      db:
-        condition: service_healthy
+      # Host-side files tracked in melinakrzemowa/air-infra (services/depot.kelostrada.pl):
+      # big-cookie tolerance (browsers carrying kelostrada.pl cookie bloat), and
+      # trusting the tunnel proxy so X-Forwarded-Proto yields https URLs.
+      - ./apache-limits.conf:/etc/apache2/conf-enabled/zz-limits.conf:ro
+      - ./TrustProxies.php:/var/www/html/app/Http/Middleware/TrustProxies.php:ro
+    networks:
+      - default
+      - mariadb
 
   cron:
     image: ghcr.io/kelostrada/depot:${VERSION:-latest}
@@ -46,12 +25,19 @@ services:
     volumes:
       - ./app.env:/var/www/html/.env:ro
       - depot_storage:/var/www/html/storage
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - default
+      - mariadb
+
+# The database is the Air's shared MariaDB server (melinakrzemowa/air-infra,
+# services/mariadb): database `depot`, user `depot`, reached as host `mariadb`
+# over this external network. The per-site db service that used to live here
+# (mariadb:10.11, volume depot_db) was retired on 2026-09-30; air-infra keeps
+# the rollback notes.
+networks:
+  mariadb:
+    external: true
 
 volumes:
-  depot_db:
-    name: depot_db
   depot_storage:
     name: depot_storage
