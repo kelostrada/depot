@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Bootstrap\HandleExceptions;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -79,4 +80,15 @@ class Kernel extends HttpKernel
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
         \Illuminate\Auth\Middleware\Authorize::class,
     ];
+
+    /**
+     * Get the bootstrap classes for the application, with the app's
+     * HandleExceptions (PHP 8.3: deprecations are not turned into exceptions).
+     *
+     * @return array
+     */
+    protected function bootstrappers()
+    {
+        return HandleExceptions::replaceIn(parent::bootstrappers());
+    }
 }
