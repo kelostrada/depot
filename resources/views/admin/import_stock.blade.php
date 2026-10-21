@@ -10,10 +10,10 @@
                         <form method="POST" action="{{ route('admin.import_stock') }}" aria-label="{{ __('Upload') }}">
                             @csrf
 
-                            <div class="form-group row">
-                                <label for="company" class="col-sm-4 col-form-label text-md-right">{{ __('Company') }}</label>
+                            <div class="row mb-3">
+                                <label for="company" class="col-sm-4 col-form-label text-md-end">{{ __('Company') }}</label>
                                 <div class="col-md-6">
-                                    <select class="form-control" name="company" required autofocus>
+                                    <select class="form-select" name="company" required autofocus>
                                       <option>Blackfire New</option>
                                       <option>Blackfire</option>
                                       <option>Ynaris</option>
@@ -22,8 +22,8 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <label for="invoice_content" class="col-sm-4 col-form-label text-md-right">{{ __('Invoice content') }}</label>
+                            <div class="row mb-3">
+                                <label for="invoice_content" class="col-sm-4 col-form-label text-md-end">{{ __('Invoice content') }}</label>
                                 <div class="col-md-6">
                                     <textarea class="form-control" name="invoice_content" required autofocus></textarea>
                                 </div>
@@ -41,7 +41,7 @@
                                 }
                             </style>
 
-                            <div class="form-group row mb-0">
+                            <div class="row mb-0">
                                 <div class="col-md-8 offset-md-4">
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Upload') }}

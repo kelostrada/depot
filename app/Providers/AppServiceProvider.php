@@ -9,24 +9,20 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         // The app runs behind a Cloudflare tunnel that terminates TLS; make
         // generated URLs https whenever the configured app URL is.
-        if (strpos(config('app.url'), 'https://') === 0) {
+        if (str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
     }

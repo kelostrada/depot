@@ -1,22 +1,18 @@
 <?php
 
+use App\Http\Controllers\Api\StocksController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
+| Loaded with the "api" middleware group and the /api prefix
+| (bootstrap/app.php). Token auth: users.api_token (config/auth.php "api").
 */
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:api')->get('/stocks', 'Api\\StocksController@index');
-Route::middleware('auth:api')->get('/stocks/csv', 'Api\\StocksController@csv');
-Route::middleware('auth:api')->get('/stocks/all', 'Api\\StocksController@all');
+Route::middleware('auth:api')->get('/stocks', [StocksController::class, 'index']);
+Route::middleware('auth:api')->get('/stocks/csv', [StocksController::class, 'csv']);
+Route::middleware('auth:api')->get('/stocks/all', [StocksController::class, 'all']);

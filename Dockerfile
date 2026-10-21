@@ -1,7 +1,4 @@
-# PHP 8.3 on Debian 13 (trixie). PHP 7.4 is end of life and gets no security
-# fixes. Laravel 6.20 + Backpack 4.0 and composer.lock predate PHP 8.1; they run
-# on 8.3 with deprecation notices kept out of Laravel's error-to-exception
-# conversion (app/Bootstrap/HandleExceptions.php, docker/php.ini).
+# PHP 8.3 on Debian 13 (trixie): Laravel 13 + Backpack 7 (free MIT core).
 FROM php:8.3-apache-trixie
 
 ENV TZ=Europe/Warsaw
@@ -25,12 +22,18 @@ RUN curl -sS https://getcomposer.org/installer | php -- --2 --install-dir=/usr/l
 COPY --chown=www-data:www-data . /var/www/html/
 WORKDIR /var/www/html
 
-# composer.json/composer.lock still cap PHP below 8 (root "php": "^7.2",
-# ocramius/package-versions 1.11 "^7.4.7"). `php+` ignores only those upper
-# bounds; the lower bounds are still enforced.
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress \
-        --ignore-platform-req=php+ \
-    && chown -R www-data:www-data vendor bootstrap/cache storage
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Backpack's CSS/JS (Basset) are downloaded from their CDNs here, at build time,
+# into public/basset (read-only for the web server); the running app serves
+# them locally and never fetches anything (config/backpack/basset.php). Fail the
+# build if any asset could not be cached.
+RUN php artisan basset:cache > /tmp/basset.log 2>&1 || { cat /tmp/basset.log; exit 1; }; \
+    cat /tmp/basset.log; \
+    if grep -q "Failed to cache" /tmp/basset.log; then exit 1; fi; \
+    chmod -R a+rX public/basset && rm -rf storage/basset /tmp/basset.log
+
+RUN chown -R www-data:www-data vendor bootstrap/cache storage
 
 # Pristine storage skeleton — the runtime storage/ is a mounted volume, seeded
 # from this copy on first start (see docker/entrypoint.sh).

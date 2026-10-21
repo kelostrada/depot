@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StockRequest;
+use App\Http\Controllers\Admin\Concerns\CleansDbDefaults;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
  * Class StockCrudController
@@ -13,6 +13,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
  */
 class StockCrudController extends CrudController
 {
+    use CleansDbDefaults;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
@@ -25,9 +26,12 @@ class StockCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/stock');
         $this->crud->setEntityNameStrings('stock', 'stocks');
 
+        // 'searchable_select' is a small custom field (Tom Select, MIT) in
+        // resources/views/vendor/backpack/crud/fields/; 'select2' is Backpack PRO
+        // since v5. With PRO installed, switching back is just 'type' => 'select2'.
         $this->crud->addField([
             'label' => "Product",
-            'type' => 'select2',
+            'type' => 'searchable_select',
             'name' => 'product_id', // the db column for the foreign key
             'entity' => 'product', // the method that defines the relationship in your Model
             'attribute' => 'ref', // foreign key attribute that is shown to user
@@ -36,7 +40,7 @@ class StockCrudController extends CrudController
 
         $this->crud->addField([
             'label' => "Invoice",
-            'type' => 'select2',
+            'type' => 'searchable_select',
             'name' => 'invoice_id', // the db column for the foreign key
             'entity' => 'invoice', // the method that defines the relationship in your Model
             'attribute' => 'name', // foreign key attribute that is shown to user
@@ -72,6 +76,7 @@ class StockCrudController extends CrudController
 
         // TODO: remove setFromDb() and manually define Fields
         $this->crud->setFromDb();
+        $this->cleanDbDefaults();
     }
 
     protected function setupUpdateOperation()

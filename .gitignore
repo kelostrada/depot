@@ -12,3 +12,8 @@ npm-debug.log
 yarn-error.log
 /app.env
 /db/
+/.phpunit.cache
+/public/basset
+/public/build
+/storage/basset
+/storage/pail

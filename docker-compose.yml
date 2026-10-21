@@ -9,11 +9,10 @@ services:
       # (secrets: APP_KEY, DB creds; DB_HOST is "mariadb", see networks below).
       - ./app.env:/var/www/html/.env:ro
       - depot_storage:/var/www/html/storage
-      # Host-side files tracked in melinakrzemowa/air-infra (services/depot.kelostrada.pl):
-      # big-cookie tolerance (browsers carrying kelostrada.pl cookie bloat), and
-      # trusting the tunnel proxy so X-Forwarded-Proto yields https URLs.
+      # Host-side file tracked in melinakrzemowa/air-infra (services/depot.kelostrada.pl):
+      # big-cookie tolerance (browsers carrying kelostrada.pl cookie bloat). Trusting
+      # the tunnel proxy (X-Forwarded-Proto -> https URLs) is in bootstrap/app.php.
       - ./apache-limits.conf:/etc/apache2/conf-enabled/zz-limits.conf:ro
-      - ./TrustProxies.php:/var/www/html/app/Http/Middleware/TrustProxies.php:ro
     networks:
       - default
       - mariadb

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\InvoiceRequest;
+use App\Http\Controllers\Admin\Concerns\CleansDbDefaults;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
  * Class InvoiceCrudController
@@ -13,6 +13,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
  */
 class InvoiceCrudController extends CrudController
 {
+    use CleansDbDefaults;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
@@ -35,11 +36,8 @@ class InvoiceCrudController extends CrudController
             'model' => "App\Models\Stock", // foreign key model
             'visibleInTable' => false, // no point, since it's a large text
             'visibleInModal' => true, // would make the modal too big
-            'visibleInExport' => false, // not important enough
             'visibleInShow' => true, // sure, why not
         ]);
-
-        $this->crud->enableExportButtons();
     }
 
     protected function setupListOperation()
@@ -48,20 +46,25 @@ class InvoiceCrudController extends CrudController
         $this->crud->setFromDb();
 
         $this->crud->addColumn([
-            'name'     => 'created_at',
-            'label'    => 'Created At',
-            'type'     => 'closure',
-            'function' => function($entry) {
+            'name'  => 'created_at',
+            'label' => 'Created At',
+            'type'  => 'text',
+            'value' => function ($entry) {
                 return $entry->created_at;
-            }
+            },
         ]);
 
         $this->crud->addColumn([
-            'name'     => 'value',
-            'label'    => 'Value',
-            'type'     => 'model_function',
-            'function_name' => 'getValue'
+            'name'          => 'value',
+            'label'         => 'Value',
+            'type'          => 'model_function',
+            'function_name' => 'getValue',
+            'default'       => '0',
         ]);
+
+        // Free replacement for Backpack PRO's export buttons: the same columns
+        // as CSV (see InvoiceExportController).
+        $this->crud->addButtonFromView('top', 'export_csv', 'export_csv', 'end');
     }
 
     protected function setupCreateOperation()
@@ -70,6 +73,7 @@ class InvoiceCrudController extends CrudController
 
         // TODO: remove setFromDb() and manually define Fields
         $this->crud->setFromDb();
+        $this->cleanDbDefaults();
     }
 
     protected function setupUpdateOperation()
@@ -79,8 +83,8 @@ class InvoiceCrudController extends CrudController
 
     protected function setupShowOperation()
     {
-        $this->crud->set('show.setFromDb', false);
-
+        // Explicit columns only (Backpack 7 skips its setFromDb auto-setup when
+        // this method exists).
         $this->crud->addColumn([
             'name' => 'id',
             'label' => 'ID',

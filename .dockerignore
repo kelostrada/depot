@@ -18,3 +18,7 @@ Dockerfile
 .dockerignore
 .github
 db/
+public/basset
+public/storage
+storage/basset
+bootstrap/cache/*.php

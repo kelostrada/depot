@@ -9,11 +9,11 @@ return [
 		'size'   => 80,
 
 		// the fallback image, can be a string or a url
-		// for more info, visit: http://en.gravatar.com/site/implement/images/#default-image
-		'fallback' => 'mm',
+		// for more info, visit: https://docs.gravatar.com/api/avatars/images/#default-image
+		'fallback' => 'mp',
 
 		// would you like to return a https://... image
-		'secure' => false,
+		'secure' => true, // https URLs: the admin is served over https
 
 		// Gravatar allows users to self-rate their images so that they can indicate if an image
 		// is appropriate for a certain audience. By default, only 'G' rated images are displayed
