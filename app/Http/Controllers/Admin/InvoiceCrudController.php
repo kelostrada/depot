@@ -61,10 +61,6 @@ class InvoiceCrudController extends CrudController
             'function_name' => 'getValue',
             'default'       => '0',
         ]);
-
-        // Free replacement for Backpack PRO's export buttons: the same columns
-        // as CSV (see InvoiceExportController).
-        $this->crud->addButtonFromView('top', 'export_csv', 'export_csv', 'end');
     }
 
     protected function setupCreateOperation()

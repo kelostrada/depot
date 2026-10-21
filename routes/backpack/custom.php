@@ -19,7 +19,6 @@ Route::group([
     Route::get('import_stock', 'StockController@index');
     Route::post('import_stock', 'StockController@importStock')->name('admin.import_stock');
     Route::post('product/{id}/quantity', 'ProductController@quantity');
-    Route::get('invoice/export-csv', 'InvoiceExportController')->name('admin.invoice.export_csv');
 
     Route::crud('stock', 'StockCrudController');
     Route::crud('product', 'ProductCrudController');
