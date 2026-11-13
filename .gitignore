@@ -17,3 +17,6 @@ yarn-error.log
 /public/build
 /storage/basset
 /storage/pail
+
+# Claude Code local settings: "don't ask again" saves approved commands verbatim, secrets included
+.claude/settings.local.json
