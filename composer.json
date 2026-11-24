@@ -10,10 +10,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "backpack/crud": "^7.1",
+        "backpack/crud": "^7.1.26",
         "backpack/theme-tabler": "^2.1",
         "guzzlehttp/guzzle": "^7.10",
-        "laravel/framework": "^13.38",
+        "laravel/framework": "^13.43",
         "laravel/tinker": "^3.0",
         "laravel/ui": "^4.6",
         "nesbot/carbon": "^3.8.4",
